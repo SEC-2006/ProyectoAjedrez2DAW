@@ -1,24 +1,22 @@
-import './style.css'
-import javascriptLogo from './javascript.svg'
-import viteLogo from '/vite.svg'
-import { setupCounter } from './counter.js'
+import "./style.scss"
+import { router } from "./router";
 
-document.querySelector('#app').innerHTML = `
-  <div>
-    <a href="https://vite.dev" target="_blank">
-      <img src="${viteLogo}" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript" target="_blank">
-      <img src="${javascriptLogo}" class="logo vanilla" alt="JavaScript logo" />
-    </a>
-    <h1>Hello Vite!</h1>
-    <div class="card">
-      <button id="counter" type="button"></button>
-    </div>
-    <p class="read-the-docs">
-      Click on the Vite logo to learn more
-    </p>
-  </div>
-`
+import { renderHeader, renderHeaderUser } from "./components/header"
+import { renderFooter } from "./components/footer";
 
-setupCounter(document.querySelector('#counter'))
+document.addEventListener("DOMContentLoaded",async ()=>{
+  const appDiv = document.querySelector('#app');
+  const headerDiv = document.querySelector('#header');
+  const footerDiv = document.querySelector('#footer');
+
+  if(localStorage.getItem("email") != null) {
+    headerDiv.replaceChildren( renderHeaderUser() );
+  } else {
+    headerDiv.replaceChildren( renderHeader() );
+  }
+  footerDiv.innerHTML = renderFooter();
+  await router(window.location.hash, appDiv);
+  window.addEventListener("hashchange", async () => {
+    await router(window.location.hash, appDiv);
+  });
+});
