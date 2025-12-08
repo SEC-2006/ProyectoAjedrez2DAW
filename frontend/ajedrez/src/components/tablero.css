@@ -1,0 +1,30 @@
+:host { display: block; --board-size: 100%; }
+.chess-root { width: var(--board-size); max-width: 800px; margin: 0 auto; }
+
+/* Estructura general del tablero */
+.board-frame { display: grid; grid-template-columns: auto 1fr auto; gap: 6px; align-items: center; }
+
+/* Layout de etiquetas laterales */
+.labels-left, .labels-right { display:flex; flex-direction:column; justify-content:stretch; }
+.labels-top, .labels-bottom { display:flex; justify-content:space-between; }
+
+/* Envoltorio cuadrado del tablero */
+.board-wrap { aspect-ratio: 1 / 1; width:100%; }
+
+/* Cuadrícula de 8x8 */
+.board { display:grid; grid-template-columns:repeat(8,1fr); grid-template-rows:repeat(8,1fr); height:100%; width:100%; border:1px solid #333; }
+
+/* Estilos de las casillas */
+.cell { position:relative; display:flex; align-items:center; justify-content:center; font-size: calc(2.4vmin + 8px); }
+.cell.dark { background:#b58863; }
+.cell.light { background:#f0d9b5; }
+
+/* Piezas */
+.piece { cursor: grab; }
+.piece:active { cursor: grabbing; }
+
+/* Tamaño de los números y letras */
+.ranks, .files { font-size: calc(1.8vmin + 6px); user-select:none; }
+
+/* Imagen invisible usada para drag */
+.drag-image { position:absolute; top:-9999px; left:-9999px; }
