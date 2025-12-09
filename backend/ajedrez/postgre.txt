@@ -1,0 +1,9 @@
+cd "directorio que quieras"
+mkdir PostgreSQL-Ajedrez
+
+cd PostgreSQL-Ajedrez
+mkdir sql
+
+sudo docker run --name PostgreSQL-Ajedrez -p 5432:5432 -e POSTGRES_DB=ajedrez -e POSTGRES_USER=ajedrez -e POSTGRES_PASSWORD=ajedrezSimarro -v ./sql:/var/lib/postgresql/data -d postgres:17.0
+
+ATENCIÓN: En caso de que no funcione revisa que no tengas otros dockers instalados en tu máquina con los mismos puertos
