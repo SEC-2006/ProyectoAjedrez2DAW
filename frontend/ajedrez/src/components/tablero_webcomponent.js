@@ -129,7 +129,6 @@ customElements.define("chess-board", ChessBoardComponent);
 // 🧪 CÓDIGO DE PRUEBA (Aplicació Externa - Listener)
 // =========================================================
 
-//esperar 3 segundos para cargar las librerías
 setTimeout(() => {
   const boardElement = document.getElementById("board");
 
@@ -153,6 +152,6 @@ setTimeout(() => {
   } else {
     console.error("El elemento con id='board' no se encontró en el DOM.");
   }
-}, 250);
+}, 125);
 
 
