@@ -1,72 +1,86 @@
-// MenuComponent: compatible with plain static server (lite-server) and bundlers.
-// It attempts to use bundler raw imports when available, otherwise fetches
-// the HTML and CSS at runtime using URLs relative to this module.
+class NavMenu extends HTMLElement {
+  constructor() {
+    super();
+    this.attachShadow({ mode: 'open' });
+  }
 
-let bundledHtml = null;
-let bundledCss = null;
-try {
-  // These imports will work when a bundler (Vite, Rollup) provides the ?raw/?inline handlers.
-  // They will throw in a plain browser environment, so we keep them in a try/catch.
-  // eslint-disable-next-line import/no-unresolved
-  // @ts-ignore
-  bundledCss = (await import('./menu.css?inline')).default;
-  // eslint-disable-next-line import/no-unresolved
-  // @ts-ignore
-  bundledHtml = (await import('./menu.html?raw')).default;
-} catch (e) {
-  // Ignore: we'll fallback to fetch below.
-}
-
-export class MenuComponent extends HTMLElement {
   connectedCallback() {
     this.render();
   }
 
-  async _loadAssets() {
-    if (bundledHtml !== null && bundledCss !== null) {
-      return { html: bundledHtml, css: bundledCss };
-    }
+  render() {
+    this.shadowRoot.innerHTML = `
+      <style>
+        nav {
+          background: linear-gradient(135deg, #340c3dff 0%, #0e0111ff 100%);
+          padding: 1rem;
+        }
 
-    // Fallback: fetch files relative to this module's location so it works with lite-server
-    const base = new URL('.', import.meta.url);
-    const htmlUrl = new URL('menu.html', base).href;
-    const cssUrl = new URL('menu.css', base).href;
+        .nav-container {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          max-width: 1200px;
+          margin: 0 auto;
+        }
 
-    const [htmlResp, cssResp] = await Promise.all([
-      fetch(htmlUrl),
-      fetch(cssUrl),
-    ]);
+        .nav-brand {
+          color: #abffffff;
+          font-size: 1.5rem;
+          font-weight: bold;
+          text-decoration: none;
+        }
 
-    if (!htmlResp.ok) throw new Error(`Failed to load ${htmlUrl}: ${htmlResp.status}`);
-    if (!cssResp.ok) throw new Error(`Failed to load ${cssUrl}: ${cssResp.status}`);
+        .nav-links {
+          display: flex;
+          gap: 2rem;
+          list-style: none;
+          margin: 0;
+          padding: 0;
+        }
 
-    const [htmlText, cssText] = await Promise.all([htmlResp.text(), cssResp.text()]);
-    return { html: htmlText, css: cssText };
-  }
+        .nav-link {
+          color: #abffffff;
+          text-decoration: none;
+          transition: all 0.3s;
+          display: inline-block;
+        }
 
-  async render() {
-    let htmlText = '';
-    let cssText = '';
-    try {
-      const assets = await this._loadAssets();
-      htmlText = assets.html;
-      cssText = assets.css;
-    } catch (e) {
-      console.error('Error loading menu assets:', e);
-      this.innerHTML = '<p>Error loading menu</p>';
-      return;
-    }
+        .nav-link:hover {
+            transform: scale(1.65);
+            text-shadow:
+            0 0 4px rgba(0,240,255,0.6),
+            0 0 14px rgba(0,240,255,0.35),
+            0 6px 40px rgba(0,0,0,0.6);
+        }
 
-    const contentHTML = document.createElement('div');
-    contentHTML.innerHTML = htmlText;
+        @media (max-width: 768px) {
+          .nav-container {
+            flex-direction: column;
+            gap: 1rem;
+          }
 
-    const styleElement = document.createElement('style');
-    styleElement.innerText = cssText;
+          .nav-links {
+            flex-direction: column;
+            gap: 1rem;
+            text-align: center;
+          }
+        }
+      </style>
 
-    // Clear previous content and append
-    this.innerHTML = '';
-    this.append(styleElement, contentHTML.firstElementChild);
+      <nav>
+        <div class="nav-container">
+          <a href="#" class="nav-brand">Ajedrez</a>
+          <ul class="nav-links">
+            <li><a href="#" class="nav-link">Inicio</a></li>
+            <li><a href="#game" class="nav-link">Juego</a></li>
+            <li><a href="#login" class="nav-link">Login</a></li>
+            <li><a href="#registro" class="nav-link">Registro</a></li>
+          </ul>
+        </div>
+      </nav>
+    `;
   }
 }
 
-customElements.define("chess-menu", MenuComponent);
+customElements.define('chess-menu', NavMenu);
