@@ -8,7 +8,11 @@ import "https://unpkg.com/@chrisoakman/chessboard2@0.5.0/dist/chessboard2.min.js
 // Rutas ahora almacenan funciones que devuelven nodos DOM (elementos personalizados)
 const routes = new Map([
     ['', () => document.createElement('chess-menu')],
-    ['#game', () => document.createElement('chess-board')],
+    ['#game', () => {
+        const el = document.createElement('chess-board');
+        el.id = 'board';
+        return el;
+    }],
     /*
     ['#login', () => renderLogin('login')],
     ['#register', () => renderLogin('register')],
