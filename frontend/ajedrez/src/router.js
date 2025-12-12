@@ -27,50 +27,63 @@ export function router(route, container) {
         const node = routes.get(route)();
         container.replaceChildren(node);
             setTimeout(() => {
-                const boardElement = document.getElementById("board");
-                if (boardElement) {
-                    boardElement.addEventListener("chess-move", (e) => {
-                    const { from, to } = e.detail;
-                    console.log(`📢 Movimiento intentado (from: ${from}, to: ${to})`); // LÒGICA EXTERNA: Valida el moviment amb el FEN correcte.
+            const board = document.getElementById("board");
+            
+            if (!board) {
+                console.error("El elemento board no existe");
+                return;
+            }
 
-                    const gameLogic = new Chess(boardElement.getFen());
-                    const move = gameLogic.move({ from, to, promotion: "q" });
+            // 1️⃣ Asignar ID de partida (cambia esto según tu lógica)
+            board.setIdPartida(1); // 👈 IMPORTANTE: Usar el ID real de tu partida
 
-                    if (move) {
-                        // ✅ Si és legal: Acceptem i actualitzem el FEN.
-                        console.log(`✅ Movimiento legal. Aceptando: ${move.san}`);
-                        const fenInicial = boardElement.getFen();
-                        boardElement.setPosition(gameLogic.fen());
-                        const fenFinal = boardElement.getFen();
-                        const moveNumber = fenFinal.split(' ')[5];
-                        
-                        // Mostramos toda la información en consola
-                        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-                        console.log(`📋 FEN Inicial: ${fenInicial}`);
-                        console.log(`📋 FEN Final:   ${fenFinal}`);
-                        console.log(`🔢 Número de movimiento: ${moveNumber}`);
-                        console.log(`♟️  Movimiento (notación): ${move.san}`);
-                        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
+            // 2️⃣ Escuchar movimientos válidos
+            board.addEventListener('move-made', (e) => {
+                const { numeroMovimiento, movimientoNotacion, fenInicial, fenFinal } = e.detail;
+                
+                console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+                console.log(`✅ Movimiento ${numeroMovimiento}: ${movimientoNotacion}`);
+                console.log(`📋 FEN Inicial: ${fenInicial}`);
+                console.log(`📋 FEN Final:   ${fenFinal}`);
+                console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
+            });
 
-                        const movimiento = {
-                            idPartida: 0, // Aquí deberías usar el ID real de la partida
-                            numeroMovimiento: parseInt(moveNumber),
-                            movimientoNotacion: move.san,
-                            fenInicial: fenInicial,
-                            fenFinal: fenFinal
-                        };
+            // 3️⃣ Escuchar jaques
+            board.addEventListener('check', (e) => {
+                console.log('⚠️ ¡Jaque!');
+                // Aquí puedes mostrar una notificación visual si quieres
+            });
 
-                        insertarMovimiento(movimiento).catch(err => {
-                            console.error('Error al insertar el movimiento en el servidor:', err);
-                        });
-                        
-                    } else {
-                        // ⛔ Si és il·legal: El tauler ja ha revertit (snapback).
-                        console.warn(`⛔ Movimiento ilegal. El tauler ja ha revertit.`);
-                    }
-                    });
+            // 4️⃣ Escuchar movimientos ilegales (opcional)
+            board.addEventListener('move-illegal', (e) => {
+                console.warn(`⛔ Movimiento ilegal: ${e.detail.from} → ${e.detail.to}`);
+            });
+
+            // 5️⃣ Escuchar fin de juego
+            board.addEventListener('game-over', async (e) => {
+                const { tipo, ganador, mensaje, pgn, movimientos } = e.detail;
+                
+                console.log('🏁🏁🏁 FIN DE JUEGO 🏁🏁🏁');
+                console.log(`Tipo: ${tipo}`);
+                console.log(`Ganador: ${ganador || 'Empate'}`);
+                console.log(`Mensaje: ${mensaje}`);
+                console.log(`Total movimientos: ${movimientos.length}`);
+                console.log(`PGN: ${pgn}`);
+                
+                // Mostrar mensaje al usuario
+                alert(mensaje);
+                
+                // Guardar en la base de datos automáticamente
+                const guardado = await board.guardarPartida();
+                
+                if (guardado) {
+                    console.log('✅ Partida guardada correctamente en la BD');
+                } else {
+                    console.error('❌ Error al guardar la partida');
                 }
-            }, 125);
+            });
+
+        }, 125);
     } else {
         container.innerHTML = `<h2>404</h2>`;
     }

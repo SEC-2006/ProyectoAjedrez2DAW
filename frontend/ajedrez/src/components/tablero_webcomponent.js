@@ -1,158 +1,255 @@
 // =========================================================
-// ⚙️ CLASSE DEL WEB COMPONENT (ChessBoardComponent)
+// ⚙️ OPCIÓN A: LÓGICA COMPLETA DENTRO DEL COMPONENTE
 // =========================================================
 
 class ChessBoardComponent extends HTMLElement {
   constructor() {
-    super(); // Verificación de seguridad
+    super();
+    
     if (typeof Chess === "undefined") {
-      console.error(
-        "❌ ERROR: La librería 'chess.js' no se ha cargado. Revisa el HTML."
-      );
+      console.error("❌ ERROR: chess.js no cargado");
       return;
-    } // Utilizamos 'Chess' internamente solo para inicializar el FEN y mantener el estado actual.
+    }
+    
     this.game = new Chess();
     this.board = null;
+    this.movimientos = []; 
+    this.idPartida = null;
   }
 
   connectedCallback() {
-    // Contenedor que asegura la capacidad de respuesta (responsividad)
     this.innerHTML = `<div id="boardContainer" style="width:100%; max-width:500px;"></div>`;
     const container = this.querySelector("#boardContainer");
 
     if (typeof Chessboard2 === "undefined") {
-      console.warn("❌ ERROR: La librería 'Chessboard2' no se ha cargado.");
+      console.warn("❌ ERROR: Chessboard2 no cargado");
       return;
     }
 
     this.board = Chessboard2(container, {
       position: this.game.fen(),
       draggable: true,
-      showNotation: true, // ✅ LÒGICA SNAPBACK PER UX MILLORADA (ÚS DE CÒPIA TEMPORAL)
+      showNotation: true,
       onDrop: ({ source, target }) => {
-        // 1. Simulem el moviment a una CÒPIA TEMPORAL per comprovar la legalitat visual.
-        const tempGame = new Chess(this.game.fen());
-        const move = tempGame.move({
-          from: source,
-          to: target,
-          promotion: "q",
-        }); // 2. Emetre l'esdeveniment SEMPRE (l'estat intern this.game no ha canviat).
-
-        this.dispatchEvent(
-          new CustomEvent("chess-move", {
-            detail: { from: source, to: target },
-          })
-        );
-
-        if (move === null) {
-          // 3. Si és IL·LEGAL: Forcem el snapback instantani.
-          return "snapback";
-        } else {
-          // 4. Si és LEGAL: No fem res amb l'estat intern (this.game).
-          // Retornar false per mantenir la peça al destí fins a la confirmació externa.
-          return false;
-        }
+        return this._handleMove(source, target);
       },
     });
-  }  // --- MÉTODOS PRIVADOS DE CONVERSIÓN ---
-  /**
-   * Converteix una matriu 8x8 de peces a la notació FEN (parcial)
-   * @param {Array<Array<string|null>>} matrix
-   * @returns {string} FEN String (amb metadata preservada).
-   */
+  }
 
-  _matrixToFen(matrix) {
-    let fen = "";
-    for (let i = 0; i < 8; i++) {
-      let emptyCount = 0;
-      for (let j = 0; j < 8; j++) {
-        const piece = matrix[i][j];
-        if (piece === null || piece === "") {
-          emptyCount++;
-        } else {
-          if (emptyCount > 0) {
-            fen += emptyCount;
-            emptyCount = 0;
-          } // Les peces han de ser P, N, B, R, Q, K (blanc) o p, n, b, r, q, k (negre)
-          fen += piece;
-        }
+  // ==========================================
+  // 🎯 MANEJO DE MOVIMIENTOS (SIMPLIFICADO)
+  // ==========================================
+  
+  _handleMove(source, target) {
+    const fenAntes = this.game.fen();
+    
+    const move = this.game.move({
+      from: source,
+      to: target,
+      promotion: 'q'
+    });
+
+    if (move === null) {
+      this.dispatchEvent(new CustomEvent('move-illegal', {
+        detail: { from: source, to: target }
+      }));
+      return 'snapback';
+    }
+
+    const fenDespues = this.game.fen();
+    
+    const movimientoData = {
+      numeroMovimiento: this.movimientos.length + 1,
+      movimientoNotacion: move.san,
+      fenInicial: fenAntes,
+      fenFinal: fenDespues,
+      from: source,
+      to: target
+    };
+    
+    this.movimientos.push(movimientoData);
+
+    this.dispatchEvent(new CustomEvent('move-made', {
+      detail: movimientoData
+    }));
+
+    this._checkGameOver();
+
+    return true;
+  }
+
+  // ==========================================
+  // 🏁 DETECCIÓN DE FIN DE JUEGO (ADAPTADA A 0.10.3)
+  // ==========================================
+  
+  _checkGameOver() {
+
+    // ⛔ En 0.10.3, el método es game_over()
+    if (!this.game.game_over()) {
+
+      // ⛔ En 0.10.3, el método es in_check()
+      if (this.game.in_check()) {
+        this.dispatchEvent(new CustomEvent('check', {
+          detail: { player: this.game.turn() }
+        }));
       }
-      if (emptyCount > 0) {
-        fen += emptyCount;
+      return;
+    }
+
+    let resultado = {};
+
+    // Checkmate
+    if (this.game.in_checkmate()) {
+      const ganador = this.game.turn() === 'w' ? 'negras' : 'blancas';
+      resultado = {
+        tipo: 'checkmate',
+        ganador,
+        mensaje: `¡Jaque mate! Ganan las ${ganador}`
+      };
+    }
+
+    // Tablas generales
+    else if (this.game.in_draw()) {
+      resultado = {
+        tipo: 'draw',
+        ganador: null,
+        mensaje: '¡Empate!'
+      };
+    }
+
+    // Ahogado
+    else if (this.game.in_stalemate()) {
+      resultado = {
+        tipo: 'stalemate',
+        ganador: null,
+        mensaje: '¡Ahogado! Empate'
+      };
+    }
+
+    // Material insuficiente
+    else if (this.game.insufficient_material()) {
+      resultado = {
+        tipo: 'insufficient_material',
+        ganador: null,
+        mensaje: '¡Empate por material insuficiente!'
+      };
+    }
+
+    // Triple repetición
+    else if (this.game.in_threefold_repetition()) {
+      resultado = {
+        tipo: 'threefold_repetition',
+        ganador: null,
+        mensaje: '¡Empate por triple repetición!'
+      };
+    }
+
+    resultado.pgn = this.game.pgn();
+    resultado.fenFinal = this.game.fen();
+    resultado.movimientos = this.movimientos;
+
+    this.dispatchEvent(new CustomEvent('game-over', {
+      detail: resultado
+    }));
+  }
+
+  // ==========================================
+  // 💾 GUARDAR EN BD
+  // ==========================================
+  
+  async guardarPartida() {
+    if (!this.idPartida) {
+      console.error('❌ No hay ID de partida asignado');
+      return;
+    }
+
+    try {
+      for (const mov of this.movimientos) {
+        await fetch('http://localhost:8080/api/movimientos', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            idPartida: this.idPartida,
+            numeroMovimiento: mov.numeroMovimiento,
+            movimientoNotacion: mov.movimientoNotacion,
+            fenInicial: mov.fenInicial,
+            fenFinal: mov.fenFinal
+          })
+        });
       }
-      if (i < 7) {
-        fen += "/"; // Separador de files
-      }
-    } // Afegim la metadata FEN (torn, enroc, etc.) que preserva l'estat actual del joc.
-    const parts = this.game.fen().split(" ");
-    return `${fen} ${parts[1]} ${parts[2]} ${parts[3]} ${parts[4]} ${parts[5]}`;
-  }  // --- MÉTODOS PÚBLICOS PARA MANIPULACIÓN EXTERNA ---
-  /**
-   * Actualiza la posición del tablero basándose en un FEN.
-   * Este es el método usado por el exterior para aceptar o revertir un movimiento.
-   * @param {string} fen - La nueva posición FEN para el tablero.
-   */
+      
+      console.log('✅ Partida guardada correctamente');
+      return true;
+    } catch (error) {
+      console.error('❌ Error al guardar:', error);
+      return false;
+    }
+  }
+
+  // ==========================================
+  // 📋 MÉTODOS PÚBLICOS
+  // ==========================================
+  
+  setIdPartida(id) {
+    this.idPartida = id;
+  }
 
   setPosition(fen) {
     if (!this.board) return;
     this.board.position(fen);
-    this.game.load(fen); // Actualiza la lógica interna del componente
+    this.game.load(fen);
   }
-  /**
-   * Actualiza la posición del tablero basándose en una matriz 8x8.
-   * @param {Array<Array<string|null>>} matrix - La nueva posición de las piezas.
-   */
-
-  setMatrix(matrix) {
-    if (!this.board) return;
-    try {
-      const newFen = this._matrixToFen(matrix);
-      this.setPosition(newFen);
-    } catch (e) {
-      console.error("Error al convertir la matriz a FEN:", e);
-    }
-  }
-  /**
-   * Obtiene la posición FEN actual del tablero.
-   * @returns {string} FEN actual.
-   */
 
   getFen() {
-    if (!this.game) return "";
     return this.game.fen();
+  }
+
+  getMovimientos() {
+    return this.movimientos;
+  }
+
+  resetGame() {
+    this.game.reset();
+    this.board.position('start');
+    this.movimientos = [];
   }
 }
 
 customElements.define("chess-board", ChessBoardComponent);
+
+// =========================================================
+// 🧪 EJEMPLO DE USO SIMPLIFICADO
+// =========================================================
+
 /*
-// =========================================================
-// 🧪 CÓDIGO DE PRUEBA (Aplicació Externa - Listener)
-// =========================================================
-
 setTimeout(() => {
-  const boardElement = document.getElementById("board");
+  const board = document.getElementById("board");
+  
+  // Asignar ID de partida
+  board.setIdPartida(1);
 
-  if (boardElement) {
-    boardElement.addEventListener("chess-move", (e) => {
-      const { from, to } = e.detail;
-      console.log(`📢 Movimiento intentado (from: ${from}, to: ${to})`); // LÒGICA EXTERNA: Valida el moviment amb el FEN correcte.
+  // Escuchar movimientos válidos
+  board.addEventListener('move-made', (e) => {
+    console.log('✅ Movimiento:', e.detail.movimientoNotacion);
+  });
 
-      const gameLogic = new Chess(boardElement.getFen());
-      const move = gameLogic.move({ from, to, promotion: "q" });
+  // Escuchar jaques
+  board.addEventListener('check', (e) => {
+    console.log('⚠️ ¡Jaque!');
+  });
 
-      if (move) {
-        // ✅ Si és legal: Acceptem i actualitzem el FEN.
-        console.log(`✅ Movimiento legal. Aceptando: ${move.san}`);
+  // Escuchar fin de juego
+  board.addEventListener('game-over', async (e) => {
+    console.log('🏁 Fin de juego:', e.detail.mensaje);
+    console.log('Tipo:', e.detail.tipo);
+    console.log('Ganador:', e.detail.ganador);
+    
+    // Guardar en BD automáticamente
+    await board.guardarPartida();
+    
+    // Mostrar mensaje al usuario
+    alert(e.detail.mensaje);
+  });
 
-        boardElement.setPosition(gameLogic.fen());
-      } else {
-        // ⛔ Si és il·legal: El tauler ja ha revertit (snapback).
-        console.warn(`⛔ Movimiento ilegal. El tauler ja ha revertit.`);
-      }
-    });
-  } else {
-    console.error("El elemento con id='board' no se encontró en el DOM.");
-  }
-}, 125);
-*/ 
-
+}, 100);
+*/
