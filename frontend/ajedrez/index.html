@@ -141,18 +141,42 @@
             flex: 1
         }
 
-    body {
-        width: auto;
-        margin: auto;
-    }
+        .notation-ranks-d3f97 .rank-3d54c{
+            position: relative;
+            font-size: 0; /* oculta cualquier texto existente (p. ej. el "0") */
+        }
+        .notation-ranks-d3f97 .rank-3d54c::before{
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #000; /* color visible del número */
+            font-size: 14px;
+            content: "";
+            line-height: 1;
+        }
+        .notation-ranks-d3f97 .rank-3d54c:nth-child(1)::before { content: "8"; }
+        .notation-ranks-d3f97 .rank-3d54c:nth-child(2)::before { content: "7"; }
+        .notation-ranks-d3f97 .rank-3d54c:nth-child(3)::before { content: "6"; }
+        .notation-ranks-d3f97 .rank-3d54c:nth-child(4)::before { content: "5"; }
+        .notation-ranks-d3f97 .rank-3d54c:nth-child(5)::before { content: "4"; }
+        .notation-ranks-d3f97 .rank-3d54c:nth-child(6)::before { content: "3"; }
+        .notation-ranks-d3f97 .rank-3d54c:nth-child(7)::before { content: "2"; }
+        .notation-ranks-d3f97 .rank-3d54c:nth-child(8)::before { content: "1"; }
 
-    chess-board{
-        display: flex;
-        justify-content: center;
-        align-content: center;
-        padding: 20vh;
-        background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
-    }
+        body {
+            width: auto;
+            margin: auto;
+        }
+
+        chess-board{
+            display: flex;
+            justify-content: center;
+            align-content: center;
+            padding: 20vh;
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+        }
 
     </style>
   </head>
