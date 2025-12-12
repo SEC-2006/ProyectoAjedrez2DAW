@@ -1,7 +1,7 @@
 let bundledHtml = null;
 let bundledCss = null;
 try {
-  bundledCss = (await import('./home.css?inline')).default;
+  bundledCss = (import('./home.css?inline')).default;
   bundledHtml = (await import('./home.html?raw')).default;
 } catch (e) {
 }

@@ -124,7 +124,7 @@ class ChessBoardComponent extends HTMLElement {
 }
 
 customElements.define("chess-board", ChessBoardComponent);
-
+/*
 // =========================================================
 // 🧪 CÓDIGO DE PRUEBA (Aplicació Externa - Listener)
 // =========================================================
@@ -143,6 +143,7 @@ setTimeout(() => {
       if (move) {
         // ✅ Si és legal: Acceptem i actualitzem el FEN.
         console.log(`✅ Movimiento legal. Aceptando: ${move.san}`);
+
         boardElement.setPosition(gameLogic.fen());
       } else {
         // ⛔ Si és il·legal: El tauler ja ha revertit (snapback).
@@ -153,5 +154,5 @@ setTimeout(() => {
     console.error("El elemento con id='board' no se encontró en el DOM.");
   }
 }, 125);
-
+*/ 
 
