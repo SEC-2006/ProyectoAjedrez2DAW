@@ -1,7 +1,3 @@
-// =========================================================
-// ⚙️ OPCIÓN A: LÓGICA COMPLETA DENTRO DEL COMPONENTE
-// =========================================================
-
 class ChessBoardComponent extends HTMLElement {
   constructor() {
     super();
@@ -36,9 +32,8 @@ class ChessBoardComponent extends HTMLElement {
     });
   }
 
-  // ==========================================
-  // 🎯 MANEJO DE MOVIMIENTOS (SIMPLIFICADO)
-  // ==========================================
+
+// MOVIMIENTOS (SIMPLIFICADO)
   
   _handleMove(source, target) {
     const fenAntes = this.game.fen();
@@ -53,7 +48,7 @@ class ChessBoardComponent extends HTMLElement {
       this.dispatchEvent(new CustomEvent('move-illegal', {
         detail: { from: source, to: target }
       }));
-      return 'snapback';
+      return 'snapback'; // la pieza vuelve a su posición original
     }
 
     const fenDespues = this.game.fen();
@@ -78,16 +73,10 @@ class ChessBoardComponent extends HTMLElement {
     return true;
   }
 
-  // ==========================================
-  // 🏁 DETECCIÓN DE FIN DE JUEGO (ADAPTADA A 0.10.3)
-  // ==========================================
+  // Detener juego
   
   _checkGameOver() {
-
-    // ⛔ En 0.10.3, el método es game_over()
     if (!this.game.game_over()) {
-
-      // ⛔ En 0.10.3, el método es in_check()
       if (this.game.in_check()) {
         this.dispatchEvent(new CustomEvent('check', {
           detail: { player: this.game.turn() }
@@ -98,7 +87,7 @@ class ChessBoardComponent extends HTMLElement {
 
     let resultado = {};
 
-    // Checkmate
+    // Jaque mate
     if (this.game.in_checkmate()) {
       const ganador = this.game.turn() === 'w' ? 'negras' : 'blancas';
       resultado = {
@@ -108,7 +97,7 @@ class ChessBoardComponent extends HTMLElement {
       };
     }
 
-    // Tablas generales
+    // Tablas
     else if (this.game.in_draw()) {
       resultado = {
         tipo: 'draw',
@@ -152,10 +141,8 @@ class ChessBoardComponent extends HTMLElement {
       detail: resultado
     }));
   }
-
-  // ==========================================
-  // 💾 GUARDAR EN BD
-  // ==========================================
+  
+  // Gurdar en BD
   
   async guardarPartida() {
     if (!this.idPartida) {
@@ -186,9 +173,7 @@ class ChessBoardComponent extends HTMLElement {
     }
   }
 
-  // ==========================================
-  // 📋 MÉTODOS PÚBLICOS
-  // ==========================================
+  // Funciones auxiliares
   
   setIdPartida(id) {
     this.idPartida = id;

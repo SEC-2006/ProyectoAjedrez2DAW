@@ -34,10 +34,10 @@ export function router(route, container) {
                 return;
             }
 
-            // 1️⃣ Asignar ID de partida (cambia esto según tu lógica)
-            board.setIdPartida(1); // 👈 IMPORTANTE: Usar el ID real de tu partida
+            // Asignar ID de partida
+            board.setIdPartida(1); // Usar el ID de la partida
 
-            // 2️⃣ Escuchar movimientos válidos
+            // Escuchar movimientos válidos
             board.addEventListener('move-made', (e) => {
                 const { numeroMovimiento, movimientoNotacion, fenInicial, fenFinal } = e.detail;
                 
@@ -48,18 +48,18 @@ export function router(route, container) {
                 console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
             });
 
-            // 3️⃣ Escuchar jaques
+            // Escuchar jaques
             board.addEventListener('check', (e) => {
                 console.log('⚠️ ¡Jaque!');
-                // Aquí puedes mostrar una notificación visual si quieres
+                
             });
 
-            // 4️⃣ Escuchar movimientos ilegales (opcional)
+            // Escuchar movimientos ilegales
             board.addEventListener('move-illegal', (e) => {
                 console.warn(`⛔ Movimiento ilegal: ${e.detail.from} → ${e.detail.to}`);
             });
 
-            // 5️⃣ Escuchar fin de juego
+            // Escuchar fin de juego
             board.addEventListener('game-over', async (e) => {
                 const { tipo, ganador, mensaje, pgn, movimientos } = e.detail;
                 
@@ -70,7 +70,7 @@ export function router(route, container) {
                 console.log(`Total movimientos: ${movimientos.length}`);
                 console.log(`PGN: ${pgn}`);
                 
-                // Mostrar mensaje al usuario
+                // Avisar al jugador
                 alert(mensaje);
                 
                 // Guardar en la base de datos automáticamente
