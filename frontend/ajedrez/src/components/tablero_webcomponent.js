@@ -124,31 +124,35 @@ class ChessBoardComponent extends HTMLElement {
 }
 
 customElements.define("chess-board", ChessBoardComponent);
-
+/*
 // =========================================================
 // 🧪 CÓDIGO DE PRUEBA (Aplicació Externa - Listener)
 // =========================================================
 
-const boardElement = document.getElementById("board");
+setTimeout(() => {
+  const boardElement = document.getElementById("board");
 
-if (boardElement) {
-  boardElement.addEventListener("chess-move", (e) => {
-    const { from, to } = e.detail;
-    console.log(`📢 Movimiento intentado (from: ${from}, to: ${to})`); // LÒGICA EXTERNA: Valida el moviment amb el FEN correcte.
+  if (boardElement) {
+    boardElement.addEventListener("chess-move", (e) => {
+      const { from, to } = e.detail;
+      console.log(`📢 Movimiento intentado (from: ${from}, to: ${to})`); // LÒGICA EXTERNA: Valida el moviment amb el FEN correcte.
 
-    const gameLogic = new Chess(boardElement.getFen());
-    const move = gameLogic.move({ from, to, promotion: "q" });
+      const gameLogic = new Chess(boardElement.getFen());
+      const move = gameLogic.move({ from, to, promotion: "q" });
 
-    if (move) {
-      // ✅ Si és legal: Acceptem i actualitzem el FEN.
-      console.log(`✅ Movimiento legal. Aceptando: ${move.san}`);
-      boardElement.setPosition(gameLogic.fen());
-    } else {
-      // ⛔ Si és il·legal: El tauler ja ha revertit (snapback).
-      console.warn(`⛔ Movimiento ilegal. El tauler ja ha revertit.`);
-    }
-  });
-} else {
-  console.error("El elemento con id='board' no se encontró en el DOM.");
-}
+      if (move) {
+        // ✅ Si és legal: Acceptem i actualitzem el FEN.
+        console.log(`✅ Movimiento legal. Aceptando: ${move.san}`);
+
+        boardElement.setPosition(gameLogic.fen());
+      } else {
+        // ⛔ Si és il·legal: El tauler ja ha revertit (snapback).
+        console.warn(`⛔ Movimiento ilegal. El tauler ja ha revertit.`);
+      }
+    });
+  } else {
+    console.error("El elemento con id='board' no se encontró en el DOM.");
+  }
+}, 125);
+*/ 
 

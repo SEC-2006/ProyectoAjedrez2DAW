@@ -1,4 +1,4 @@
-/*Estilo del menu de ejemplo - sujeto a cambios*/
+/*Estilo del home de ejemplo - sujeto a cambios*/
 * {
   margin: 0;
   padding: 0;
@@ -108,11 +108,11 @@ h1 {
   background: white;
 }
 
-.features h2 {
+h2 {
   text-align: center;
   font-size: 2.5rem;
   margin-bottom: 3rem;
-  color: #333;
+  color: white;
 }
 
 .features-grid {
@@ -150,6 +150,11 @@ h1 {
 .feature-card p {
   color: #666;
   line-height: 1.6;
+}
+
+hr {
+  border-top: 1px solid #ccc;
+  margin: 20px 0;
 }
 
 @keyframes fadeInUp {
