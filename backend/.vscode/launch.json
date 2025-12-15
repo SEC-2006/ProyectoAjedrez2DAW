@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-AjedrezApplication<ajedrez>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "org.alumno.proyecto.ajedrez.AjedrezApplication",
+            "projectName": "ajedrez",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}

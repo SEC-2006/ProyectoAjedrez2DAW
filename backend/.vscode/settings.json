@@ -1,0 +1,16 @@
+{
+    "sqltools.connections": [
+        {
+            "ssh": "Disabled",
+            "previewLimit": 50,
+            "server": "localhost",
+            "port": 5433,
+            "driver": "PostgreSQL",
+            "name": "ajedrez-DWES",
+            "database": "ajedrez",
+            "username": "ajedrez",
+            "password": "ajedrezSimarro"
+        }
+    ],
+    "java.debug.settings.onBuildFailureProceed": true
+}
