@@ -55,11 +55,11 @@ class ChessBoardComponent extends HTMLElement {
     
     const movimientoData = {
       numeroMovimiento: this.movimientos.length + 1,
-      movimientoNotacion: move.san,
+      movimientoNotacion: move.san, // san = moviemento ajedrez en lenguaje humano
       fenInicial: fenAntes,
       fenFinal: fenDespues,
-      from: source,
-      to: target
+      from: source, // pieza origen
+      to: target // pieza destino
     };
     
     this.movimientos.push(movimientoData);
@@ -137,6 +137,16 @@ class ChessBoardComponent extends HTMLElement {
     resultado.fenFinal = this.game.fen();
     resultado.movimientos = this.movimientos;
 
+    if (resultado.ganador) {
+      if (resultado.ganador === 'blancas') {
+        localStorage.setItem('ganador', 1);
+      } else {
+        localStorage.setItem('ganador', 2);
+      }
+    } else {
+      localStorage.setItem('ganador', -1);
+    }
+
     this.dispatchEvent(new CustomEvent('game-over', {
       detail: resultado
     }));
@@ -144,7 +154,7 @@ class ChessBoardComponent extends HTMLElement {
   
   // Gurdar en BD
   
-  async guardarPartida() {
+  async guardarMovimiento() {
     if (!this.idPartida) {
       console.error('❌ No hay ID de partida asignado');
       return;
@@ -152,7 +162,7 @@ class ChessBoardComponent extends HTMLElement {
 
     try {
       for (const mov of this.movimientos) {
-        await fetch('http://localhost:8080/api/movimientos', {
+        await fetch('http://localhost:8090/api/movimientos', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -171,6 +181,49 @@ class ChessBoardComponent extends HTMLElement {
       console.error('❌ Error al guardar:', error);
       return false;
     }
+  }
+
+  // Guardar partida
+
+  // Temporal
+  async guardarPartida() {
+    if (!this.idPartida) {
+      console.error('❌ No hay ID de partida asignado');
+      return;
+    }
+    
+    try {
+      const response = await fetch('http://localhost:8090/api/partidas/' + this.idPartida, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          idBlanco: this.idPartida, // Suponiendo que el ID del jugador blanco es el ID de la partida
+          idNegro: this.idPartida + 1, // Suponiendo que el ID del jugador negro es el ID de la partida + 1
+          idGanador: localStorage.getItem('ganador'),
+        })
+      });
+      
+      localStorage.removeItem('ganador');
+
+      if (response.ok) {
+        console.log('✅ Partida guardada correctamente');
+        return true;
+      } else {
+        console.error('❌ Error al guardar la partida');
+        return false;
+      }
+    } catch (error) {
+      console.error('❌ Error al guardar:', error);
+      return false;
+    }
+  }
+
+  // Cargar partida de fen a board
+  
+  async cargarPartidaDesdeFen(fen) {
+    this.game.load(fen);
+    this.board.position(fen);
+    this.movimientos = [];
   }
 
   // Funciones auxiliares
