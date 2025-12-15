@@ -38,7 +38,7 @@ export function router(route, container) {
             board.setIdPartida(1); // Usar el ID de la partida
 
             // Escuchar movimientos válidos
-            board.addEventListener('move-made', (e) => {
+            board.addEventListener('move-made', async (e) => {
                 const { numeroMovimiento, movimientoNotacion, fenInicial, fenFinal } = e.detail;
                 
                 console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
@@ -46,6 +46,8 @@ export function router(route, container) {
                 console.log(`📋 FEN Inicial: ${fenInicial}`);
                 console.log(`📋 FEN Final:   ${fenFinal}`);
                 console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
+                
+               const guardado = await board.guardarMovimiento();
             });
 
             // Escuchar jaques
@@ -74,7 +76,7 @@ export function router(route, container) {
                 alert(mensaje);
                 
                 // Guardar en la base de datos automáticamente
-                const guardado = await board.guardarPartida();
+                // const guardado = await board.guardarPartida();
                 
                 if (guardado) {
                     console.log('✅ Partida guardada correctamente en la BD');
