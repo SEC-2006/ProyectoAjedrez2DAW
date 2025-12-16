@@ -45,7 +45,7 @@ DELETE http://localhost:8090/api/movimientos/1 HTTP/1.1
 Content-Type: application/json
 
 ###ordenado por numeroMovimiento asc
-GET http://localhost:8090/api/movimientos?idPartida=1&page=0&size=2&sort=numeroMovimiento,asc
+GET http://localhost:8090/api/movimientos?idPartida=1&page=0&size=10&sort=numeroMovimiento,asc
 Content-Type: application/json
 
 ###ordenado por tiempo desc

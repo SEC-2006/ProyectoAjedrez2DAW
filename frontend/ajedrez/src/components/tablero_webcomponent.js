@@ -161,19 +161,19 @@ class ChessBoardComponent extends HTMLElement {
     }
 
     try {
-      for (const mov of this.movimientos) {
-        await fetch('http://localhost:8090/api/movimientos', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            idPartida: this.idPartida,
-            numeroMovimiento: mov.numeroMovimiento,
-            movimientoNotacion: mov.movimientoNotacion,
-            fenInicial: mov.fenInicial,
-            fenFinal: mov.fenFinal
-          })
-        });
-      }
+            const ultimoMovimiento = this.movimientos[this.movimientos.length - 1];
+  
+      await fetch('http://localhost:8090/api/movimientos', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          idPartida: this.idPartida,
+          numeroMovimiento: ultimoMovimiento.numeroMovimiento,
+          movimientoNotacion: ultimoMovimiento.movimientoNotacion,
+          fenInicial: ultimoMovimiento.fenInicial,
+          fenFinal: ultimoMovimiento.fenFinal
+        })
+      });
       
       console.log('✅ Partida guardada correctamente');
       return true;
